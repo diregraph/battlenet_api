@@ -11,16 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/battlenet', function () {
-    return view('ui');
-});
-
 Route::get('/battlenet-home', function () {
-    return view('pages.home');
+    $characters = DB::table('characters')
+        ->latest()
+        ->get()
+        ->toJson();
+    return view('pages.home')->with('characters' , $characters);
 });
 
 Route::post('/battlenet-submit', [

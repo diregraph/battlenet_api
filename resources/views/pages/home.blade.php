@@ -1,22 +1,55 @@
 @extends('layouts.default')
+
+@section('title')
+    @if(!empty($pvp_json))
+        {{$pvp_json["name"]}}-{{$pvp_json["realm"]}}
+    @else
+        Home
+    @endif
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col border-primary border p-3">
             <form action="{{route('submit-url')}}" method="POST">
                 @csrf
-                <input name="feed_name" placeholder="Name">
-                <input name="feed_realm" placeholder="Realm">
+                <input name="feed_name" placeholder="Name" aria-required="true">
+                <input name="feed_realm" placeholder="Realm" aria-required="true">
                 <input type="submit" value="Check">
             </form>
+            <br>
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-active">
+                    <th scope="col">Name-Realm</th>
+                    <th scope="col">Last Checked</th>
+                    <th scope="col">Highest Stats</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{--{{dd(json_decode($characters,true)[0]['name-realm'])}}--}}
+                @foreach (json_decode($characters,true) as $character)
+                <tr>
+                    <td>{{$character['name-realm']}}</td>
+                    <td>{{$character['updated_at']}}</td>
+                    <td>Column content</td>
+                </tr>
+                @endforeach
+                </tbody>
+
+            </table>
         </div>
-        <div class="col border-primary border p-3" id="withBg"
-             {{--             style="background-image: url('http://render-eu.worldofwarcraft.com/character/{{$pvp_json["thumbnail"]}}');">--}}
+        @if(!empty($pvp_json))
+        <div class="col border-primary border" id="withBg"
              style="background-image: url('http://render-eu.worldofwarcraft.com/character/{!! str_replace('avatar', 'main', $pvp_json["thumbnail"]) !!}');">
-            @if(!empty($pvp_json))
+
+            <div class="p-3" style="background-color:rgba(0, 0, 0, 0.7);">
                 <div class="row">
                     <div class="col">
                         <h1>{{$pvp_json["name"]}}-{{$pvp_json["realm"]}}</h1>
+                        @if(array_key_exists("guild" , $guild_json))
                         <h4>< {{$guild_json["guild"]["name"]}} ></h4>
+                        @endif
                         <h4>Average item level equipped : {{$item_json["items"]["averageItemLevelEquipped"]}}</h4>
                     </div>
                     <div class="col">
@@ -102,9 +135,13 @@
                         </div>
                     </div>
                 </div>
-            @else
-                Enter a valid Name and a Realm
-            @endif
+            </div>
+
         </div>
+        @else
+        <div class="col border-primary border p-3">
+            Enter a valid Name and a Realm
+        </div>
+        @endif
     </div>
 @stop
