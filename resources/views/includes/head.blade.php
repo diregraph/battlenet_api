@@ -17,4 +17,4 @@
         crossorigin="anonymous"></script>
 
 
-<title>Check WoW PvP - @yield('title')</title>
+<title>WoW PvP - @yield('title')</title>

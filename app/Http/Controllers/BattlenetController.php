@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\View\View;
+use App\Character;
 
 class BattlenetController extends Controller
 {
@@ -18,6 +20,12 @@ class BattlenetController extends Controller
         ]);
 
         try {
+
+            $this->validate($request, [
+                'feed_name' => 'required',
+                'feed_realm' => 'required'
+            ]);
+
             $name = $request->input('feed_name');
             $realm = $request->input('feed_realm');
             $base_url = "https://eu.api.battle.net/wow/character/";
@@ -42,6 +50,7 @@ class BattlenetController extends Controller
         if (!empty($pvp_response)
             && !empty($item_response)
             && !empty($guild_response)){
+
             if ($pvp_response->getStatusCode() == 200
                 && $item_response->getStatusCode() == 200
                 && $guild_response->getStatusCode() == 200){
@@ -55,12 +64,36 @@ class BattlenetController extends Controller
                 $guild_body = $guild_response->getBody();
                 $guild_json = json_decode($guild_body, true);
 
-                return view('pages.home')->with('pvp_json', $pvp_json)->with('item_json' , $item_json)->with('guild_json' , $guild_json);
+                $nameRealm = $pvp_json['name'] . "-" . $pvp_json['realm'];
+
+                $character = DB::table('characters')->where('name-realm' , $nameRealm)->first();
+                if ($character === null) {
+                    // character doesn't exist
+                    $character = new Character([
+                        'name-realm' => $nameRealm
+                    ]);
+
+                    $character->save();
+                }else{
+                    DB::table('characters')
+                        ->where('name-realm',$nameRealm)
+                        ->update(
+                            [
+                                'name-realm' => $nameRealm,
+                                'updated_at' => \Carbon\Carbon::now()
+                            ]);
+                }
+
+                $db_characters = DB::table('characters')
+                    ->latest()
+                    ->get()
+                    ->toJson();
+
+                return view('pages.home')->with('pvp_json', $pvp_json)->with('item_json' , $item_json)->with('guild_json' , $guild_json)->with('characters' , $db_characters);
             }
         }else{
-            return view('pages.home')->with('json', []);
+            return view('pages.home')->with('pvp_json', [])->with('guild_json', [])->with('item_json', []);
         }
-
-
     }
 }
+
