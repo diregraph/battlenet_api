@@ -32,7 +32,7 @@
                 <tr>
                     <td>{{$character['name-realm']}}</td>
                     <td>{{$character['updated_at']}}</td>
-                    <td>Column content</td>
+                    <td>Couldn't find data</td>
                 </tr>
                 @endforeach
                 </tbody>
@@ -62,10 +62,9 @@
 
                 <div class="row">
                     <div class="col">
+                        <img src="http://render-eu.worldofwarcraft.com/character/{{$pvp_json["thumbnail"]}}"
+                             style="width:110px">
                         <div class="card border border-primary" style="width: 18rem;">
-                            <img class="card-img-top"
-                                 src="http://render-eu.worldofwarcraft.com/character/{{$pvp_json["thumbnail"]}}"
-                                 alt="Card image cap">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item"><b>2v2 Arena Rating : </b>
                                     <div class="btn-group">

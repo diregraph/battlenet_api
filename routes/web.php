@@ -19,7 +19,16 @@ Route::get('/battlenet-home', function () {
     return view('pages.home')->with('characters' , $characters);
 });
 
+Route::get('/battlenet-ranking', function () {
+    return view('pages.ranking');
+});
+
 Route::post('/battlenet-submit', [
     'uses' => 'BattlenetController@submit',
     'as' => 'submit-url'
+]);
+
+Route::post('/battlenet-ranking-submit', [
+    'uses' => 'BattlenetController@bracket',
+    'as' => 'submit-bracket'
 ]);

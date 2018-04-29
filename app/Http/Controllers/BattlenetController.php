@@ -6,8 +6,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
-use Illuminate\View\View;
 use App\Character;
 
 class BattlenetController extends Controller
@@ -91,9 +89,49 @@ class BattlenetController extends Controller
 
                 return view('pages.home')->with('pvp_json', $pvp_json)->with('item_json' , $item_json)->with('guild_json' , $guild_json)->with('characters' , $db_characters);
             }
+            return view('pages.home')->with('pvp_json', [])->with('guild_json', [])->with('item_json', []);
         }else{
             return view('pages.home')->with('pvp_json', [])->with('guild_json', [])->with('item_json', []);
         }
+    }
+
+    public function bracket(Request $request){
+        $myClient = new Client([
+            'headers' => ['User-Agent' => 'MyReader']
+        ]);
+
+        try {
+
+            $this->validate($request, [
+                'feed_bracket' => 'required'
+            ]);
+
+            $bracket = $request->input('feed_bracket');
+            $base_url = "https://eu.api.battle.net/wow/leaderboard/";
+            $url_attributes_locale_api_key = "?locale=en_GB&apikey=pk6erm2brgq7zmyxvty5s4hkan44bnqw";
+
+            //pvp leaderboard information
+            $url = $base_url . $bracket . $url_attributes_locale_api_key;
+            $pvp_leaderboard_response = $myClient->request('GET', $url);
+        } catch (GuzzleException $e) {
+            //
+        }
+
+        if (!empty($pvp_leaderboard_response)){
+
+            if ($pvp_leaderboard_response->getStatusCode() == 200){
+
+                $pvp_leaderboard_body = $pvp_leaderboard_response->getBody();
+                $pvp_leaderboard_json = json_decode($pvp_leaderboard_body, true);
+
+                return view('pages.ranking')->with('pvp_leaderboard_json', $pvp_leaderboard_json);
+            }
+            return view('pages.ranking')->with('pvp_leaderboard_json', []);
+        }else{
+            return view('pages.ranking')->with('pvp_leaderboard_json', []);
+        }
+
+
     }
 }
 
