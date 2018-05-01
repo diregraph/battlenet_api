@@ -18,6 +18,7 @@
                 <input type="submit" value="Check">
             </form>
             <br>
+            {{--{{$characters->links()}}--}}
             <table class="table table-hover">
                 <thead>
                 <tr class="table-active">
@@ -27,8 +28,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{--{{dd(json_decode($characters,true)[0]['name-realm'])}}--}}
-                @foreach (json_decode($characters,true) as $character)
+                {{--{{dd(json_decode(json_encode($characters),true)['data'])}}--}}
+                @foreach (json_decode(json_encode($characters),true)['data'] as $character)
                     <tr onclick="{{route('submit-url')}}">
                         <td>{{$character['name-realm']}}</td>
                         <td>{{$character['updated_at']}}</td>
@@ -43,7 +44,7 @@
             <div class="col border-primary border" id="withBg"
                  style="background-image: url('http://render-eu.worldofwarcraft.com/character/{!! str_replace('avatar', 'main', $pvp_json["thumbnail"]) !!}');">
 
-                <div class="p-3" style="background-color:rgba(0, 0, 0, 0.7);">
+                <div class="p-3" style="background-color:rgba(0, 0, 0, 0.5);">
                     <div class="row">
                         <div class="col">
                             <h1>{{$pvp_json["name"]}}-{{$pvp_json["realm"]}}</h1>
@@ -136,12 +137,14 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         @else
             <div class="col border-primary border p-3">
-                Enter a valid Name and a Realm
+                <div class="alert alert-primary">
+                    <strong>No character selected!</strong> Enter a name and a realm and try checking again.
+                </div>
             </div>
         @endif
+
     </div>
 @stop

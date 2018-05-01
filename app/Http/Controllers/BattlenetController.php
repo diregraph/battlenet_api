@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use App\Character;
+use function MongoDB\BSON\toJSON;
 
 class BattlenetController extends Controller
 {
@@ -85,22 +86,35 @@ class BattlenetController extends Controller
 
                 $characters = DB::table('characters')
                     ->orderBy('updated_at', 'desc')
-                    ->get()
-                    ->toJson();
+                    ->paginate(50);
 
-                return view('pages.home')->with('pvp_json', $pvp_json)->with('item_json', $item_json)->with('guild_json', $guild_json)->with('characters', $characters);
+                return view('pages.home')->with('pvp_json', $pvp_json)
+                    ->with('item_json', $item_json)
+                    ->with('guild_json', $guild_json)
+                    ->with('characters', $characters);
             }
-            return view('pages.home')->with('pvp_json', [])->with('guild_json', [])->with('item_json', []);
+            $characters = DB::table('characters')
+                ->orderBy('updated_at', 'desc')
+                ->paginate(50);
+
+            return view('pages.home')->with('pvp_json', [])
+                ->with('guild_json', [])
+                ->with('item_json', [])
+                ->with('characters', $characters);
         } else {
-            return view('pages.home')->with('pvp_json', [])->with('guild_json', [])->with('item_json', []);
+            $characters = DB::table('characters')
+                ->orderBy('updated_at', 'desc')
+                ->paginate(50);
+
+            return view('pages.home')->with('pvp_json', [])
+                ->with('guild_json', [])
+                ->with('item_json', [])
+                ->with('characters', $characters);
         }
     }
 
     public function bracket(Request $request)
     {
-        /*$db_character = DB::table('leaderboard')->where('name-realm', 'Grapplling-Ravencrest')->first();
-        dd(json_decode(json_encode($db_character),true)['2v2']);*/
-
         $myClient = new Client([
             'headers' => ['User-Agent' => 'MyReader']
         ]);
@@ -128,11 +142,9 @@ class BattlenetController extends Controller
                 $pvp_leaderboard_body = $pvp_leaderboard_response->getBody();
                 $pvp_leaderboard_json = json_decode($pvp_leaderboard_body, true);
 
-//                dd($pvp_leaderboard_json['rows']);
                 foreach ($pvp_leaderboard_json['rows'] as $character) {
                     $nameRealm = $character['name'] . '-' . $character['realmName'];
                     $db_character = DB::table('leaderboard')->where('name-realm', $nameRealm)->first();
-//                    dd($db_character);
                     if ($db_character === null) {
                         try {
                             $base_url = "https://eu.api.battle.net/wow/character/";
@@ -145,7 +157,6 @@ class BattlenetController extends Controller
                         }
                         if (!empty($character_appearance_response) && $character_appearance_response->getStatusCode() == 200) {
                             $character_appearance_json = json_decode($character_appearance_response->getBody(), true);
-//                            dd($character_appearance_json['thumbnail']);
                             DB::table('leaderboard')
                                 ->insert(
                                     [
@@ -174,7 +185,11 @@ class BattlenetController extends Controller
                     }
                 }
 
-                return view('pages.ranking')->with('pvp_leaderboard_json', $pvp_leaderboard_json);
+                $leaderboard = DB::table('leaderboard')
+                    ->orderBy('2v2', 'desc')
+                    ->paginate(50);
+
+                return view('pages.ranking')->with('pvp_leaderboard_json', $pvp_leaderboard_json)->with('leaderboard' , $leaderboard);
             }
             return view('pages.ranking')->with('pvp_leaderboard_json', []);
         } else {
@@ -188,9 +203,21 @@ class BattlenetController extends Controller
     {
         $leaderboard = DB::table('leaderboard')
             ->orderBy('2v2', 'desc')
-            ->get()
-            ->toJson();
+            ->paginate(50);
+
         return view('pages.ranking')->with('leaderboard', $leaderboard);
     }
+
+    public function sort(Request $request)
+    {
+        $sort_bracket = $request->input('sort_bracket');
+
+        $leaderboard = DB::table('leaderboard')
+            ->orderBy($sort_bracket, 'desc')
+            ->paginate(50);
+
+        return view('pages.ranking')->with('leaderboard', $leaderboard)->with('sort_bracket', $sort_bracket);
+    }
+
 }
 
