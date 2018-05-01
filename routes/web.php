@@ -13,14 +13,10 @@
 
 Route::get('/battlenet-home', function () {
     $characters = DB::table('characters')
-        ->latest()
+        ->orderBy('updated_at', 'desc')
         ->get()
         ->toJson();
-    return view('pages.home')->with('characters' , $characters);
-});
-
-Route::get('/battlenet-ranking', function () {
-    return view('pages.ranking');
+    return view('pages.home')->with('characters', $characters);
 });
 
 Route::post('/battlenet-submit', [
@@ -31,4 +27,8 @@ Route::post('/battlenet-submit', [
 Route::post('/battlenet-ranking-submit', [
     'uses' => 'BattlenetController@bracket',
     'as' => 'submit-bracket'
+]);
+
+Route::get('/battlenet-ranking', [
+    'uses' => 'BattlenetController@ranking',
 ]);
