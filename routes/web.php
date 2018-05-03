@@ -29,10 +29,15 @@ Route::post('/battlenet-ranking-submit', [
 ]);
 
 Route::get('/battlenet-ranking', [
-    'uses' => 'BattlenetController@ranking',
+    'uses' => 'BattlenetController@sort',
 ]);
 
 Route::post('/battlenet-ranking-sort', [
+    'uses' => 'BattlenetController@sort',
+    'as' => 'sort-bracket'
+]);
+
+Route::get('/battlenet-ranking-sort', [
     'uses' => 'BattlenetController@sort',
     'as' => 'sort-bracket'
 ]);

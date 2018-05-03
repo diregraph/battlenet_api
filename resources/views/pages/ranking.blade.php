@@ -28,7 +28,7 @@
                         </select>
                         <button class="btn btn-primary" type="submit">Check</button>
                     </form>
-                    <form class="mt-3" action="{{route('sort-bracket')}}" method="POST">
+                    <form class="mt-3" action="{{route('sort-bracket')}}" method="GET">
                         @csrf
                         <select name="sort_bracket" aria-required="true" title="Bracket">
                             <option value="2v2"
@@ -89,8 +89,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {{--{{dd(json_decode($leaderboard,true)['data'])}}--}}
-                {{--                {{dd(json_decode(json_encode($leaderboard) , true)['data'])}}--}}
+                {{--{{dd($sort_bracket)}}--}}
                 @foreach (json_decode(json_encode($leaderboard),true)['data'] as $row)
                     <tr>
                         <td>{{$row['ranking_'.$sort_bracket]}}</td>

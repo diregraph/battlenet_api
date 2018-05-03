@@ -141,7 +141,7 @@
         @else
             <div class="col border-primary border p-3">
                 <div class="alert alert-primary">
-                    <strong>No character selected!</strong> Enter a name and a realm and try checking again.
+                    <strong>No valid character selected!</strong> Enter a valid name and a valid realm and try checking.
                 </div>
             </div>
         @endif

@@ -47,13 +47,13 @@ class BattlenetController extends Controller
         } catch (GuzzleException $e) {
             //
         }
-        if (!empty($pvp_response)
-            && !empty($item_response)
-            && !empty($guild_response)) {
+        if (!empty($pvp_response) &&
+            !empty($item_response) &&
+            !empty($guild_response)) {
 
-            if ($pvp_response->getStatusCode() == 200
-                && $item_response->getStatusCode() == 200
-                && $guild_response->getStatusCode() == 200) {
+            if ($pvp_response->getStatusCode() == 200 &&
+                $item_response->getStatusCode() == 200 &&
+                $guild_response->getStatusCode() == 200) {
 
                 $pvp_body = $pvp_response->getBody();
                 $pvp_json = json_decode($pvp_body, true);
@@ -189,7 +189,7 @@ class BattlenetController extends Controller
                     ->orderBy('2v2', 'desc')
                     ->paginate(50);
 
-                return view('pages.ranking')->with('pvp_leaderboard_json', $pvp_leaderboard_json)->with('leaderboard' , $leaderboard);
+                return view('pages.ranking')->with('pvp_leaderboard_json', $pvp_leaderboard_json)->with('leaderboard', $leaderboard);
             }
             return view('pages.ranking')->with('pvp_leaderboard_json', []);
         } else {
@@ -199,24 +199,22 @@ class BattlenetController extends Controller
 
     }
 
-    public function ranking(Request $request)
-    {
-        $leaderboard = DB::table('leaderboard')
-            ->orderBy('2v2', 'desc')
-            ->paginate(50);
-
-        return view('pages.ranking')->with('leaderboard', $leaderboard);
-    }
-
     public function sort(Request $request)
     {
         $sort_bracket = $request->input('sort_bracket');
+        if ($sort_bracket != null) {
+            $leaderboard = DB::table('leaderboard')
+                ->orderBy($sort_bracket, 'desc')
+                ->paginate(50);
 
-        $leaderboard = DB::table('leaderboard')
-            ->orderBy($sort_bracket, 'desc')
-            ->paginate(50);
+            return view('pages.ranking')->with('leaderboard', $leaderboard)->with('sort_bracket', $sort_bracket);
+        } else {
+            $leaderboard = DB::table('leaderboard')
+                ->orderBy('2v2', 'desc')
+                ->paginate(50);
 
-        return view('pages.ranking')->with('leaderboard', $leaderboard)->with('sort_bracket', $sort_bracket);
+            return view('pages.ranking')->with('leaderboard', $leaderboard)->with('sort_bracket', '2v2');
+        }
     }
 
 }
